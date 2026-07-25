@@ -3,125 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pay by Bank Transfer — Efikcoin Eternal Ecosystem</title>
+<title>Efikcoin Admin — Transactions</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Syne:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap');
   :root{ --gold:#d4af37; --gold-dim:#a8862b; --bg:#0a0a0c; --panel:#131316; --panel-2:#1b1b1f; --border:#2a2a2f; --text:#f0ead6; --text-dim:#9a9a9f; --green:#3ecf8e; --red:#e5484d; --amber:#e5b84d; }
   *{box-sizing:border-box;}
-  body{ margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; display:flex; align-items:center; justify-content:center; padding:24px; }
-  .card{ width:100%; max-width:420px; background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:28px; box-shadow:0 0 0 1px rgba(212,175,55,0.05), 0 20px 60px rgba(0,0,0,0.5); }
-  .brand{ display:flex; align-items:center; gap:10px; margin-bottom:22px; }
+  body{ margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; }
+  .center-screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .card{ width:100%; max-width:380px; background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:28px; }
+  .brand{ display:flex; align-items:center; gap:10px; margin-bottom:20px; }
   .brand-mark{ width:34px; height:34px; border-radius:50%; background:conic-gradient(from 180deg, var(--gold), var(--gold-dim), var(--gold)); display:flex; align-items:center; justify-content:center; font-family:'Orbitron',sans-serif; font-weight:800; color:#0a0a0c; font-size:14px; }
-  .brand-name{ font-family:'Orbitron',sans-serif; font-weight:700; letter-spacing:0.5px; font-size:15px; color:var(--gold); }
-  .brand-sub{ font-size:11px; color:var(--text-dim); }
-  label{ font-size:12px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; display:block; margin:14px 0 6px; }
-  input, select{ width:100%; background:var(--panel-2); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-size:14px; }
-  button{ width:100%; padding:14px; border-radius:10px; border:none; cursor:pointer; font-family:'Syne',sans-serif; font-weight:700; font-size:15px; margin-top:18px; background:linear-gradient(135deg,var(--gold),var(--gold-dim)); color:#0a0a0c; }
-  button:disabled{ opacity:0.5; cursor:not-allowed; }
-  .status{ margin-top:16px; padding:14px; border-radius:10px; font-size:13px; background:var(--panel-2); border:1px solid var(--border); display:none; font-family:'Space Mono',monospace; line-height:1.6; word-break:break-all; }
-  .status.show{ display:block; }
-  .status.pending{ border-color:var(--amber); color:var(--amber); }
-  .status.success{ border-color:var(--green); color:var(--green); }
-  .status.error{ border-color:var(--red); color:var(--red); }
-  .footer-note{ text-align:center; font-size:11px; color:var(--text-dim); margin-top:18px; }
+  .brand-name{ font-family:'Orbitron',sans-serif; font-weight:700; font-size:15px; color:var(--gold); }
+  .step{ display:none; }
+  .step.active{ display:block; }
+  .step-label{ font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+  input{ width:100%; background:var(--panel-2); border:1px solid var(--border); color:var(--text); padding:12px; border-radius:8px; font-family:'Space Mono',monospace; font-size:14px; margin-bottom:10px; }
+  button{ width:100%; padding:13px; border-radius:10px; border:none; cursor:pointer; font-weight:700; font-size:14px; background:linear-gradient(135deg,var(--gold),var(--gold-dim)); color:#0a0a0c; }
+  button:disabled{ opacity:0.5; }
+  .msg{ font-size:12px; margin-top:10px; font-family:'Space Mono',monospace; }
+  .msg.error{ color:var(--red); }
+  .msg.ok{ color:var(--green); }
+
+  #dashboard{ display:none; padding:20px; max-width:1000px; margin:0 auto; }
+  #dashboard.active{ display:block; }
+  .topbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:10px; }
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+  .stat{ background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .stat-label{ font-size:11px; color:var(--text-dim); text-transform:uppercase; }
+  .stat-val{ font-family:'Orbitron',sans-serif; font-size:20px; color:var(--gold); margin-top:4px; }
+
+  .filters{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .filter-btn{ width:auto; padding:8px 14px; background:var(--panel-2); color:var(--text-dim); border:1px solid var(--border); font-size:12px; }
+  .filter-btn.active{ background:var(--gold); color:#0a0a0c; }
+  #searchInput{ margin-bottom:14px; }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; }
+  th{ text-align:left; padding:10px; color:var(--text-dim); font-size:11px; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  td{ padding:10px; border-bottom:1px solid var(--border); font-family:'Space Mono',monospace; font-size:12px; }
+  .badge{ padding:3px 8px; border-radius:6px; font-size:10px; font-weight:700; }
+  .badge.EFC{ background:rgba(212,175,55,0.15); color:var(--gold); }
+  .badge.BANK{ background:rgba(62,207,142,0.15); color:var(--green); }
+  .table-wrap{ overflow-x:auto; background:var(--panel); border:1px solid var(--border); border-radius:12px; }
+  .export-btn{ width:auto; padding:8px 14px; font-size:12px; background:var(--panel-2); color:var(--text); border:1px solid var(--border); }
 </style>
 </head>
 <body>
 
-<div class="card">
-  <div class="brand">
-    <div class="brand-mark">E</div>
-    <div>
-      <div class="brand-name">EFIKCOIN PAY</div>
-      <div class="brand-sub">Bank Transfer Checkout</div>
+<!-- LOGIN FLOW -->
+<div class="center-screen" id="loginScreen">
+  <div class="card">
+    <div class="brand"><div class="brand-mark">E</div><div class="brand-name">EFIKCOIN ADMIN</div></div>
+
+    <div class="step active" id="step1">
+      <div class="step-label">Step 1 — Admin sign-in</div>
+      <input type="email" id="adminEmail" placeholder="Admin email">
+      <input type="password" id="adminPassword" placeholder="Password">
+      <button id="signInBtn">Sign In</button>
+      <div class="msg" id="msg1"></div>
+    </div>
+
+    <div class="step" id="step2">
+      <div class="step-label">Step 2 — Verify owner wallet</div>
+      <button id="connectWalletBtn">Connect Owner Wallet</button>
+      <div class="msg" id="msg2"></div>
+    </div>
+
+    <div class="step" id="step3">
+      <div class="step-label">Step 3 — Enter PIN</div>
+      <input type="password" id="pinInput" placeholder="PIN" maxlength="8">
+      <button id="pinBtn">Unlock Dashboard</button>
+      <div class="msg" id="msg3"></div>
     </div>
   </div>
-
-  <label>Amount (NGN)</label>
-  <input type="number" id="amount" placeholder="e.g. 5000" min="1" step="any">
-
-  <label>Email</label>
-  <input type="email" id="email" placeholder="customer@email.com">
-
-  <label>Phone</label>
-  <input type="tel" id="phone" placeholder="080xxxxxxxx">
-
-  <button id="payBtn">Pay by Bank Transfer</button>
-
-  <div class="status" id="statusBox"></div>
-  <div class="footer-note">Payments are verified server-side before confirming. Powered by Flutterwave.</div>
 </div>
 
-<script src="https://checkout.flutterwave.com/v3.js"></script>
-<script>
-// ============ CONFIG ============
-const FLW_PUBLIC_KEY = "FLWPUBK_TEST-66323cbc290185a8599f83c4e2de5c98-X"; // swap to live key when ready
-const VERIFY_ENDPOINT = "/api/verify-payment"; // your server route, see server.js below
-// =================================
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="topbar">
+    <div class="brand"><div class="brand-mark">E</div><div class="brand-name">TRANSACTIONS</div></div>
+    <button class="export-btn" id="exportBtn">Export CSV</button>
+  </div>
 
-const payBtn = document.getElementById("payBtn");
-const statusBox = document.getElementById("statusBox");
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total EFC received</div><div class="stat-val" id="statEfc">0</div></div>
+    <div class="stat"><div class="stat-label">Total NGN received</div><div class="stat-val" id="statNgn">0</div></div>
+    <div class="stat"><div class="stat-label">Transactions today</div><div class="stat-val" id="statToday">0</div></div>
+    <div class="stat"><div class="stat-label">All-time count</div><div class="stat-val" id="statCount">0</div></div>
+  </div>
 
-function setStatus(kind, msg) {
-  statusBox.className = "status show " + kind;
-  statusBox.textContent = msg;
-}
+  <div class="filters">
+    <button class="filter-btn active" data-filter="ALL">All</button>
+    <button class="filter-btn" data-filter="EFC">EFC (on-chain)</button>
+    <button class="filter-btn" data-filter="BANK">Bank transfer</button>
+  </div>
+  <input type="text" id="searchInput" placeholder="Search by ref, tx hash, or email...">
 
-payBtn.addEventListener("click", function () {
-  const amount = document.getElementById("amount").value;
-  const email = document.getElementById("email").value;
-  const phone = document.getElementById("phone").value;
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Type</th><th>Amount</th><th>Ref / Tx</th><th>From</th><th>Status</th><th>Time</th></tr></thead>
+      <tbody id="txTableBody"></tbody>
+    </table>
+  </div>
+</div>
 
-  if (!amount || Number(amount) <= 0) return setStatus("error", "Enter a valid amount.");
-  if (!email) return setStatus("error", "Enter your email.");
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const txRef = "EFC-" + Date.now();
+// ============ CONFIG — fill in your actual Firebase project values ============
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "efikcoin-admin.firebaseapp.com",
+  projectId: "efikcoin-admin",
+  storageBucket: "efikcoin-admin.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const OWNER_WALLET_ADDRESS = "0x676cCf34C191a9D6EFE4B265b84877C619A559d0"; // must match connected wallet
+const PIN_HASH = "REPLACE_WITH_SHA256_HASH_OF_YOUR_PIN"; // generate below
+// Generate your PIN hash once in browser console:
+// crypto.subtle.digest("SHA-256", new TextEncoder().encode("yourPin")).then(b=>console.log(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")))
+// ================================================================================
 
-  FlutterwaveCheckout({
-    public_key: FLW_PUBLIC_KEY,
-    tx_ref: txRef,
-    amount: Number(amount),
-    currency: "NGN",
-    payment_options: "banktransfer",
-    customer: { email: email, phone_number: phone },
-    customizations: {
-      title: "Efikcoin Pay",
-      description: "Payment to Efikcoin Eternal Ecosystem",
-      logo: "https://efikcoin.xyz/logo.png"
-    },
-    callback: function (data) {
-      // data.transaction_id comes back here — but this alone is NOT proof of
-      // payment. We send it to our server, which asks Flutterwave directly.
-      setStatus("pending", "Payment submitted. Verifying with Flutterwave...");
-      verifyOnServer(data.transaction_id, Number(amount), txRef);
-    },
-    onclose: function () {
-      if (!statusBox.classList.contains("success")) {
-        setStatus("error", "Checkout closed before completing payment.");
-      }
-    }
-  });
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let walletVerified = false;
+const el = id => document.getElementById(id);
+
+el("signInBtn").addEventListener("click", async () => {
+  try {
+    await signInWithEmailAndPassword(auth, el("adminEmail").value, el("adminPassword").value);
+    el("step1").classList.remove("active");
+    el("step2").classList.add("active");
+  } catch (err) {
+    el("msg1").className = "msg error";
+    el("msg1").textContent = "Sign-in failed: " + err.message;
+  }
 });
 
-async function verifyOnServer(transactionId, expectedAmount, txRef) {
-  try {
-    const res = await fetch(VERIFY_ENDPOINT, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transaction_id: transactionId, expected_amount: expectedAmount, tx_ref: txRef })
-    });
-    const result = await res.json();
-
-    if (result.verified) {
-      setStatus("success", "Payment confirmed ✓  Ref: " + txRef);
-      // Hook: trigger EFC credit / order fulfillment here
-    } else {
-      setStatus("error", "Could not verify payment: " + (result.reason || "unknown"));
-    }
-  } catch (err) {
-    setStatus("error", "Verification request failed: " + err.message);
+el("connectWalletBtn").addEventListener("click", async () => {
+  if (!window.ethereum) return (el("msg2").className = "msg error", el("msg2").textContent = "No wallet found.");
+  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  if (accounts[0].toLowerCase() === OWNER_WALLET_ADDRESS.toLowerCase()) {
+    walletVerified = true;
+    el("msg2").className = "msg ok";
+    el("msg2").textContent = "Wallet verified.";
+    el("step2").classList.remove("active");
+    el("step3").classList.add("active");
+  } else {
+    el("msg2").className = "msg error";
+    el("msg2").textContent = "This is not the owner wallet.";
   }
+});
+
+el("pinBtn").addEventListener("click", async () => {
+  const pin = el("pinInput").value;
+  const hashBuf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(pin));
+  const hashHex = Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2, "0")).join("");
+
+  if (hashHex === PIN_HASH && walletVerified) {
+    el("loginScreen").style.display = "none";
+    el("dashboard").classList.add("active");
+    startDashboard();
+  } else {
+    el("msg3").className = "msg error";
+    el("msg3").textContent = "Incorrect PIN.";
+  }
+});
+
+// ---------- DASHBOARD ----------
+let allTx = [];
+let currentFilter = "ALL";
+
+function startDashboard() {
+  onSnapshot(query(collection(db, "efc_payments"), orderBy("createdAt", "desc")), snap => {
+    const efc = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allTx = allTx.filter(t => t.type !== "EFC").concat(efc);
+    render();
+  });
+  onSnapshot(query(collection(db, "bank_payments"), orderBy("createdAt", "desc")), snap => {
+    const bank = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allTx = allTx.filter(t => t.type !== "BANK").concat(bank);
+    render();
+  });
 }
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+});
+el("searchInput").addEventListener("input", render);
+
+function render() {
+  const search = el("searchInput").value.toLowerCase();
+  let rows = allTx.filter(t => currentFilter === "ALL" || t.type === currentFilter);
+  if (search) {
+    rows = rows.filter(t =>
+      (t.ref || t.txRef || "").toLowerCase().includes(search) ||
+      (t.txHash || "").toLowerCase().includes(search) ||
+      (t.customerEmail || "").toLowerCase().includes(search)
+    );
+  }
+  rows.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+  el("txTableBody").innerHTML = rows.map(t => `
+    <tr>
+      <td><span class="badge ${t.type}">${t.type}</span></td>
+      <td>${t.amount} ${t.type === "EFC" ? "EFC" : (t.currency || "NGN")}</td>
+      <td>${t.ref || t.txRef || t.txHash?.slice(0,10) || "--"}</td>
+      <td>${t.from ? t.from.slice(0,6)+"..."+t.from.slice(-4) : (t.customerEmail || "--")}</td>
+      <td>${t.status}</td>
+      <td>${t.createdAt ? new Date(t.createdAt.seconds*1000).toLocaleString() : "--"}</td>
+    </tr>`).join("");
+
+  const efcTotal = allTx.filter(t => t.type === "EFC").reduce((s, t) => s + Number(t.amount || 0), 0);
+  const ngnTotal = allTx.filter(t => t.type === "BANK").reduce((s, t) => s + Number(t.amount || 0), 0);
+  const todayCount = allTx.filter(t => t.createdAt && new Date(t.createdAt.seconds*1000).toDateString() === new Date().toDateString()).length;
+
+  el("statEfc").textContent = efcTotal.toLocaleString();
+  el("statNgn").textContent = "₦" + ngnTotal.toLocaleString();
+  el("statToday").textContent = todayCount;
+  el("statCount").textContent = allTx.length;
+}
+
+el("exportBtn").addEventListener("click", () => {
+  const rows = [["Type","Amount","Ref","From/Email","Status","Time"]];
+  allTx.forEach(t => rows.push([t.type, t.amount, t.ref || t.txRef || t.txHash, t.from || t.customerEmail, t.status, t.createdAt ? new Date(t.createdAt.seconds*1000).toISOString() : ""]));
+  const csv = rows.map(r => r.map(c => `"${c ?? ""}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "efikcoin-transactions-" + Date.now() + ".csv";
+  link.click();
+});
 </script>
 </body>
 </html>
